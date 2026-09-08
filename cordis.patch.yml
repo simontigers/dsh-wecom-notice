@@ -1,0 +1,9 @@
+# dsh-wecom-notice bundle patch
+#
+# Mounts the wecom notice plugin into the profile loader. `name` resolves from
+# the profile node_modules (installed via `dsh plugin --profile <name> add <this
+# package>`); the client half is served by the host at
+# /plugins/dsh-wecom-notice/client.js.
+- insert:
+    - id: dsh-wecom-notice
+      name: 'dsh-wecom-notice'
