@@ -26,9 +26,9 @@ dsh plugin --profile web add /path/to/dsh_wecom_notice
 ### 从 GitHub（无需构建：纯 ESM，无 prepare 脚本）
 
 ```sh
-dsh plugin --profile web add github:you/dsh-wecom-notice
+dsh plugin --profile web add github:simontigers/dsh-wecom-notice
 # 建议锁定 commit：
-dsh plugin --profile web add github:you/dsh-wecom-notice#<sha>
+dsh plugin --profile web add github:simontigers/dsh-wecom-notice#<sha>
 ```
 
 安装后重启 `dsh web` 生效。
