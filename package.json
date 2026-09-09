@@ -1,6 +1,6 @@
 {
   "name": "dsh-wecom-notice",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "企业微信群机器人通知插件：agent 回合结束 / 需要审批 / 出错时按自定义文本模板推送到企业微信群，支持 {workspace}/{session}/{summary} 等占位符、text/markdown 消息类型、事件开关与防抖合并；设置页可视化配置并一键测试。WeCom group-robot notifier with customizable message templates for DeepSeek Harness.",
   "author": "SimonTigers",
   "license": "MIT",

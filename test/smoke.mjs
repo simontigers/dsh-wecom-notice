@@ -132,7 +132,7 @@ assert(persisted.webhook.includes("key=TEST") && persisted.debounceMs === 200, "
 // ---- 13. 检查更新：github 安装 → 识别 currentTag 并发现新版本
 githubTags = [{ name: "v0.5.0" }, { name: "v0.4.1" }, { name: "v0.4.2" }];
 const cu1 = (await callApi("checkUpdate", {})).value;
-assert(cu1.mode === "github" && cu1.currentTag === "v0.4.1" && cu1.latest === "v0.5.0" && cu1.upToDate === false,
+assert(cu1.mode === "github" && cu1.currentTag === "v0.4.1" && cu1.latest === "v0.5.0" && cu1.upToDate === false && cu1.diskVersion === cu1.version && cu1.pendingRestart === false,
   "checkUpdate 识别 github 安装、取最高 semver tag 并发现新版本");
 
 // ---- 14. 检查更新：已是最新
