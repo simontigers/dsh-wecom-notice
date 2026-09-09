@@ -1,8 +1,21 @@
 // dsh-wecom-notice 冒烟测试：假 cordis ctx + 拦截 fetch，验证全链路
 process.env.DSH_HOME = "/tmp/dsh-wecom-notice-test-home";
 
+import { mkdir, writeFile } from "node:fs/promises";
+await mkdir(process.env.DSH_HOME + "/profiles/web", { recursive: true });
+await writeFile(
+  process.env.DSH_HOME + "/profiles/web/package.json",
+  JSON.stringify({ dependencies: { "dsh-wecom-notice": "github:simontigers/dsh-wecom-notice#v0.4.1" } }),
+);
+
 const captured = [];
+let githubTags = [];
+let githubFail = false;
 globalThis.fetch = async (url, init) => {
+  if (String(url).includes("api.github.com")) {
+    if (githubFail) throw new Error("network down");
+    return new Response(JSON.stringify(githubTags), { status: 200 });
+  }
   captured.push({ url, body: JSON.parse(init.body) });
   return new Response(JSON.stringify({ errcode: 0, errmsg: "ok" }), { status: 200 });
 };
@@ -115,6 +128,28 @@ assert(bad.ok === false, "save 拒绝非 https webhook");
 const { readFile } = await import("node:fs/promises");
 const persisted = JSON.parse(await readFile(process.env.DSH_HOME + "/wecom-notice/config.json", "utf8"));
 assert(persisted.webhook.includes("key=TEST") && persisted.debounceMs === 200, "配置已持久化到 DSH_HOME");
+
+// ---- 13. 检查更新：github 安装 → 识别 currentTag 并发现新版本
+githubTags = [{ name: "v0.5.0" }, { name: "v0.4.1" }, { name: "v0.4.2" }];
+const cu1 = (await callApi("checkUpdate", {})).value;
+assert(cu1.mode === "github" && cu1.currentTag === "v0.4.1" && cu1.latest === "v0.5.0" && cu1.upToDate === false,
+  "checkUpdate 识别 github 安装、取最高 semver tag 并发现新版本");
+
+// ---- 14. 检查更新：已是最新
+githubTags = [{ name: "v0.4.1" }, { name: "v0.3.0" }];
+const cu2 = (await callApi("checkUpdate", {})).value;
+assert(cu2.upToDate === true && cu2.latest === "v0.4.1", "checkUpdate 已是最新");
+
+// ---- 15. 检查更新：主机侧网络失败 → latest=null 交浏览器兜底
+githubFail = true;
+const cu3 = (await callApi("checkUpdate", {})).value;
+assert(cu3.mode === "github" && cu3.latest === null && cu3.repoSlug === "simontigers/dsh-wecom-notice" && cu3.currentTag === "v0.4.1",
+  "checkUpdate 网络失败返回兜底信息");
+githubFail = false;
+
+// ---- 16. 检查更新：stop 后 store 生命周期不冲突（幂等再查一次）
+const cu4 = (await callApi("checkUpdate", {})).value;
+assert(cu4.upToDate === true, "checkUpdate 可重复调用");
 
 console.log(process.exitCode ? "\n=== 有失败项 ===" : "\n=== 全部通过 ===");
 console.log("captured:", captured.length, "| logs:", logs.length);

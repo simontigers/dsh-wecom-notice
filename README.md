@@ -85,6 +85,16 @@ await notifier?.send?.({ title: 'cron 完成', content: '任务 xyz 已跑完' }
 - 客户端设置页挂载方式参考了 [chicheng-push](https://github.com/534119219/chicheng-push)（MIT）与官方 dsh-cost-meter
 - API 仅接受本机回环/受信 Host 的同源请求
 
+## 检查更新
+
+设置页顶部提供「检查更新」：插件读取 profile 依赖声明判断安装来源（`github:` / `link:`），GitHub 安装时对比仓库最新 tag，发现新版本会给出可一键复制的更新命令：
+
+```bash
+dsh plugin --profile web add github:simontigers/dsh-wecom-notice#v<版本号>
+```
+
+主机侧网络不通时自动改用浏览器直接查询 GitHub API 兜底。
+
 ## License
 
 MIT
